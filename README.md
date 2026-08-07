@@ -3,8 +3,6 @@
 A visual, browser-based editor for building Discord **Components V2** webhook messages — no manual JSON required.
 Assemble containers, text blocks, sections, media galleries, and action rows on a canvas, watch a live Discord-style preview update as you go, and send the result straight to a webhook when you're ready. Everything runs entirely in the browser: there's no server, no build step, and no dependency to install.
 
----
-
 ## Why this exists
 
 Discord's Components V2 message format is powerful but verbose — building anything beyond a simple embed by hand means writing and re-writing nested JSON, restarting whenever a bracket is out of place. This tool replaces that loop with a drag-and-drop builder and an instant preview, so you can focus on the message you're designing instead of the payload structure behind it.
