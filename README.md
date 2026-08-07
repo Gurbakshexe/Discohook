@@ -24,7 +24,7 @@ Discord's Components V2 message format is powerful but verbose — building anyt
 
 ### Option 1 — Use it online
 
-Open the hosted version: **[Live demo](#)**
+Open the hosted version: **[Live demo](https://components-v2-builder-website.vercel.app/)**
 
 ### Option 2 — Run it locally
 
@@ -58,11 +58,3 @@ Your webhook URL functions like a password: anyone who has it can post messages 
 - Sends messages directly from your browser to Discord's API — nothing passes through an intermediary server
 
 Don't share screenshots, recordings, or copies of this page with your webhook URL already filled in.
-
-## Browser support
-
-Works in any modern evergreen browser (Chrome, Firefox, Edge, Safari). No Internet Explorer support.
-
-## Contributing
-
-Issues and pull requests are welcome. If you're proposing a new component type or feature, please open an issue first to discuss it — Discord's Components V2 schema has some sharp edges worth aligning on before implementation.
