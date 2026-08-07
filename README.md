@@ -24,13 +24,13 @@ Discord's Components V2 message format is powerful but verbose — building anyt
 
 ### Option 1 — Use it online
 
-Open the hosted version: **[Live demo](#)** *(replace with your GitHub Pages URL once deployed)*
+Open the hosted version: **[Live demo](#)**
 
 ### Option 2 — Run it locally
 
 ```bash
-git clone https://github.com/<your-username>/<your-repo>.git
-cd <your-repo>
+git clone https://github.com/Gurbakshexe/Components-V2-Builder-Website.git
+cd Components-V2-Builder-Website
 ```
 
 Then open `index.html` in any modern browser. That's the entire setup.
