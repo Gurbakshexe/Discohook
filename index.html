@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Components V2 Creator</title>
+<style>
+
+/* ============================================================
+   Theme
+   ============================================================ */
+
+:root {
+  --bg: #313338;
+  --bg-secondary: #2b2d31;
+  --bg-tertiary: #1e1f22;
+  --bg-elevated: #383a40;
+  --bg-input: #1e1f22;
+
+  --border: #3f4147;
+  --border-light: #4e505a;
+
+  --text: #f2f3f5;
+  --text-muted: #b5bac1;
+  --text-faint: #80838e;
+
+  --accent: #5865f2;
+  --accent-hover: #4752c4;
+  --danger: #da373c;
+  --danger-hover: #a12828;
+  --success: #23a55a;
+
+  --font: 'gg sans', 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'Consolas', 'Courier New', monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg-tertiary);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ============================================================
+   Layout
+   ============================================================ */
+
+.app {
+  display: grid;
+  grid-template-columns: 1fr 460px;
+  min-height: 100vh;
+}
+
+@media (max-width: 980px) {
+  .app { grid-template-columns: 1fr; }
+}
+
+.builder {
+  background: var(--bg-secondary);
+  padding: 24px 28px 80px;
+  overflow-y: auto;
+}
+
+.side {
+  background: var(--bg-tertiary);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--border);
+}
+
+/* ============================================================
+   Webhook bar
+   ============================================================ */
+
+.webhook-bar {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 22px;
+}
+
+.webhook-bar label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: .3px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.webhook-row { display: flex; gap: 8px; }
+.webhook-row input { flex: 1; }
+.hint { font-size: 11.5px; color: var(--text-faint); margin-top: 6px; }
+
+/* ============================================================
+   Section headers
+   ============================================================ */
+
+.section-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: .4px;
+  margin: 26px 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-title .count {
+  background: var(--bg-elevated);
+  color: var(--text-faint);
+  font-size: 10.5px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+/* ============================================================
+   Form controls
+   ============================================================ */
+
+input[type=text],
+input[type=url],
+input[type=number],
+textarea,
+select {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 9px 11px;
+  font-family: var(--font);
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color .12s;
+  resize: vertical;
+}
+
+textarea { min-height: 64px; line-height: 1.4; }
+select { cursor: pointer; }
+input::placeholder,
+textarea::placeholder { color: var(--text-faint); }
+input:focus,
+textarea:focus,
+select:focus { border-color: var(--accent); }
+
+/* red outline shown on a field the payload validator flagged as invalid */
+.field-warn { border-color: rgba(218, 55, 60, .55) !important; }
+.field-warn-note { font-size: 11px; color: #ff8a8d; margin-top: 4px; }
+
+.field { margin-bottom: 12px; }
+.field label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 5px;
+}
+
+.field-row { display: flex; gap: 10px; }
+.field-row > .field { flex: 1; }
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+
+button {
+  font-family: var(--font);
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background .12s, opacity .12s, transform .05s;
+}
+button:active { transform: scale(.98); }
+
+.btn-primary { background: var(--accent); color: #fff; padding: 9px 16px; font-size: 13.5px; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+
+.btn-secondary { background: var(--bg-elevated); color: var(--text); padding: 9px 14px; font-size: 13px; }
+.btn-secondary:hover { background: var(--border-light); }
+
+.btn-add {
+  width: 100%;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border: 1px dashed var(--border-light);
+  padding: 10px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn-add:hover { background: var(--border-light); color: var(--text); border-style: solid; }
+
+.empty-state {
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 12.5px;
+  padding: 22px 10px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+/* ============================================================
+   Component blocks (the cards in the builder panel)
+   ============================================================ */
+
+.block {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border-light);
+  border-radius: 8px;
+  padding: 14px 14px 12px;
+  margin-bottom: 10px;
+  transition: box-shadow .12s;
+}
+
+/* color-code the left border by component type so the builder is scannable */
+.block.type-container { border-left-color: #5865f2; }
+.block.type-section { border-left-color: #23a55a; }
+.block.type-text { border-left-color: #f0b232; }
+.block.type-separator { border-left-color: var(--text-faint); }
+.block.type-gallery { border-left-color: #eb459e; }
+.block.type-actionrow { border-left-color: #da373c; }
+
+.block.dragging { opacity: .4; }
+.block.drag-over-top { box-shadow: inset 0 2px 0 var(--accent); }
+.block.drag-over-bottom { box-shadow: inset 0 -2px 0 var(--accent); }
+
+.drag-handle {
+  cursor: grab;
+  color: var(--text-faint);
+  font-size: 14px;
+  line-height: 1;
+  user-select: none;
+  letter-spacing: -1px;
+}
+.drag-handle:hover { color: var(--text); }
+.drag-handle:active { cursor: grabbing; }
+
+.block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.block-head .tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: var(--text-faint);
+}
+.block-head .left { display: flex; align-items: center; gap: 8px; }
+
+.block-controls { display: flex; gap: 4px; align-items: center; }
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-faint);
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+}
+.icon-btn:hover { background: var(--bg-elevated); color: var(--text); }
+.icon-btn.danger:hover { color: var(--danger); }
+
+.nested {
+  padding-left: 14px;
+  border-left: 2px solid var(--border);
+  margin-top: 10px;
+}
+
+/* ============================================================
+   Container-specific controls
+   ============================================================ */
+
+.color-row { display: flex; align-items: center; gap: 10px; }
+.color-row input[type=color] {
+  width: 38px;
+  height: 32px;
+  padding: 2px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-elevated);
+  border-radius: 6px;
+  padding: 9px 12px;
+  margin-bottom: 10px;
+}
+.toggle-row .label-wrap { display: flex; flex-direction: column; gap: 1px; }
+.toggle-row .label-wrap .title { font-size: 12.5px; font-weight: 600; color: var(--text); }
+.toggle-row .label-wrap .sub { font-size: 11px; color: var(--text-faint); }
+
+.switch { position: relative; width: 34px; height: 20px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+.switch .slider {
+  position: absolute;
+  inset: 0;
+  background: var(--border-light);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.switch .slider::before {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .15s;
+}
+.switch input:checked + .slider { background: var(--accent); }
+.switch input:checked + .slider::before { transform: translateX(14px); }
+
+/* ============================================================
+   Section-specific controls
+   ============================================================ */
+
+.accessory-toggle { display: flex; gap: 6px; margin-bottom: 8px; }
+.accessory-toggle button {
+  flex: 1;
+  background: var(--bg-elevated);
+  color: var(--text-faint);
+  padding: 7px;
+  font-size: 11.5px;
+  border: 1px solid transparent;
+}
+.accessory-toggle button.active {
+  background: rgba(88, 101, 242, .15);
+  color: #8e9aff;
+  border-color: rgba(88, 101, 242, .4);
+}
+
+/* ============================================================
+   Add-component menu
+   ============================================================ */
+
+.add-menu {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.add-menu button {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  padding: 10px 8px;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.add-menu button:hover { background: var(--border-light); color: var(--text); }
+.add-menu button svg { width: 16px; height: 16px; fill: currentColor; }
+
+/* ============================================================
+   Send status message
+   ============================================================ */
+
+.status-msg {
+  margin-top: 10px;
+  font-size: 12.5px;
+  padding: 9px 12px;
+  border-radius: 6px;
+  display: none;
+}
+.status-msg.show { display: block; }
+.status-msg.ok {
+  background: rgba(35, 165, 90, .12);
+  color: #5fd88a;
+  border: 1px solid rgba(35, 165, 90, .3);
+}
+.status-msg.err {
+  background: rgba(218, 55, 60, .12);
+  color: #ff7376;
+  border: 1px solid rgba(218, 55, 60, .3);
+}
+
+/* ============================================================
+   Right panel: preview / JSON tabs
+   ============================================================ */
+
+.side-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  padding: 4px;
+  margin-bottom: 16px;
+}
+.side-tabs button {
+  flex: 1;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 8px;
+  font-size: 12.5px;
+  border-radius: 6px;
+}
+.side-tabs button.active { background: var(--bg-elevated); color: var(--text); }
+
+.preview-wrap { display: none; flex: 1; }
+.preview-wrap.active { display: block; }
+.json-wrap { display: none; flex: 1; flex-direction: column; }
+.json-wrap.active { display: flex; }
+
+.discord-msg { display: flex; gap: 14px; padding: 2px 0; }
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+.msg-body { flex: 1; min-width: 0; }
+.msg-author-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 2px; }
+.msg-author { font-size: 14.5px; font-weight: 600; color: var(--text); }
+.msg-badge {
+  background: var(--accent);
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+.msg-time { font-size: 11px; color: var(--text-faint); }
+
+/* ---- Components V2 render (mimics the real Discord layout) ---- */
+
+.cv2-root { display: flex; flex-direction: column; gap: 8px; margin-top: 2px; }
+
+.cv2-container {
+  border-left: 4px solid var(--border-light);
+  background: var(--bg-elevated);
+  border-radius: 4px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cv2-container.no-accent { border-left-color: transparent; padding-left: 12px; }
+
+.cv2-text { font-size: 14px; line-height: 1.375; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+
+.cv2-section { display: flex; align-items: center; gap: 12px; }
+.cv2-section-text { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.cv2-thumb { width: 80px; height: 80px; border-radius: 4px; object-fit: cover; background: var(--bg-elevated); flex-shrink: 0; }
+.cv2-btn-accessory {
+  background: var(--bg-elevated);
+  color: var(--text);
+  padding: 8px 14px;
+  font-size: 13px;
+  border-radius: 4px;
+  white-space: nowrap;
+  border: 1px solid var(--border-light);
+}
+
+.cv2-separator { height: 1px; background: var(--border); margin: 4px 0; }
+
+.cv2-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 4px; }
+.cv2-gallery img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; background: var(--bg-elevated); }
+
+.cv2-actionrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.cv2-actionrow button {
+  background: var(--bg-elevated);
+  color: var(--text);
+  padding: 8px 16px;
+  font-size: 13.5px;
+  border-radius: 4px;
+  border: 1px solid var(--border-light);
+  font-weight: 500;
+}
+
+.placeholder-preview { color: var(--text-faint); font-size: 13px; text-align: center; padding: 60px 20px; }
+
+pre#jsonOut {
+  flex: 1;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.55;
+  color: #c9d1d9;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0 0 10px;
+}
+.json-actions { display: flex; gap: 8px; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg-elevated); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="builder">
+
+    <div class="webhook-bar">
+      <label for="webhookUrl">Webhook URL</label>
+      <div class="webhook-row">
+        <input type="url" id="webhookUrl" placeholder="https://discord.com/api/webhooks/...">
+      </div>
+      <div class="field-row" style="margin-top:10px;">
+        <div class="field" style="margin-bottom:0;">
+          <label>Username override (optional)</label>
+          <input type="text" id="webhookUsername" placeholder="Uses webhook default">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Avatar URL override (optional)</label>
+          <input type="url" id="webhookAvatar" placeholder="Uses webhook default">
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      Top-level components
+      <span class="count" id="rootCount">0</span>
+    </div>
+
+    <div id="emptyState" class="empty-state">No components yet. Add a container or a text display to get started.</div>
+    <div id="rootList"></div>
+
+    <div class="add-menu">
+      <button type="button" data-add="container"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z" fill="none" stroke="currentColor" stroke-width="2"/></svg>Container</button>
+      <button type="button" data-add="text"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Text display</button>
+      <button type="button" data-add="section"><svg viewBox="0 0 24 24"><path d="M4 5h11M4 12h11M4 19h11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="20" cy="12" r="2" fill="currentColor"/></svg>Section</button>
+      <button type="button" data-add="gallery"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" fill="none" stroke="currentColor" stroke-width="2"/></svg>Media gallery</button>
+      <button type="button" data-add="separator"><svg viewBox="0 0 24 24"><path d="M4 12h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Separator</button>
+      <button type="button" data-add="actionrow"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="7" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14" y="8" width="7" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Action row</button>
+    </div>
+
+    <button class="btn-primary" id="sendBtn" type="button" style="width:100%;padding:12px;font-size:14px;margin-top:18px;">Send to Discord</button>
+    <div class="status-msg" id="statusMsg"></div>
+
+  </div>
+
+  <div class="side">
+
+    <div class="side-tabs">
+      <button type="button" class="active" data-tab="preview">Preview</button>
+      <button type="button" data-tab="json">JSON payload</button>
+    </div>
+
+    <div class="preview-wrap active" id="previewWrap">
+      <div class="discord-msg">
+        <div class="avatar" id="previewAvatarLetter">B</div>
+        <div class="msg-body">
+          <div class="msg-author-row">
+            <span class="msg-author" id="previewAuthor">Webhook bot</span>
+            <span class="msg-badge">app</span>
+            <span class="msg-time" id="previewTime"></span>
+          </div>
+          <div class="cv2-root" id="cv2Preview">
+            <div class="placeholder-preview">Your message preview will appear here.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="json-wrap" id="jsonWrap">
+      <pre id="jsonOut">{}</pre>
+      <div class="json-actions">
+        <button class="btn-secondary" id="copyJsonBtn" type="button">Copy JSON</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+/* ============================================================
+   Constants and state
+
+   `state.root` holds the top-level component tree. Containers
+   carry their own children array, so the whole thing nests
+   naturally without a separate parent-lookup table.
+   ============================================================ */
+
+const IS_COMPONENTS_V2 = 1 << 15;
+
+const state = { root: [] };
+
+let idCounter = 1;
+function uid() {
+  return 'c' + (idCounter++);
+}
+
+let webhookIdentity = { name: '', avatar: '' };
+let dragState = null;
+let webhookUrlDebounce = null;
+
+/* ============================================================
+   Component factories
+   ============================================================ */
+
+function newContainer() {
+  return { _uid: uid(), type: 'container', hasAccent: false, accentColor: '#5865f2', spoiler: false, children: [] };
+}
+function newText() {
+  return { _uid: uid(), type: 'text', content: '' };
+}
+function newSection() {
+  return { _uid: uid(), type: 'section', texts: [newText()], accessoryType: 'none', thumbUrl: '', buttonLabel: '', buttonUrl: '' };
+}
+function newGallery() {
+  return { _uid: uid(), type: 'gallery', items: [{ url: '', description: '' }] };
+}
+function newSeparator() {
+  return { _uid: uid(), type: 'separator', divider: true, spacing: 'small' };
+}
+function newActionRow() {
+  return { _uid: uid(), type: 'actionrow', buttons: [{ label: 'Link', url: '', style: 'link' }] };
+}
+
+function factory(type) {
+  switch (type) {
+    case 'container': return newContainer();
+    case 'text': return newText();
+    case 'section': return newSection();
+    case 'gallery': return newGallery();
+    case 'separator': return newSeparator();
+    case 'actionrow': return newActionRow();
+  }
+}
+
+document.querySelectorAll('[data-add]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.root.push(factory(btn.dataset.add));
+    render();
+  });
+});
+
+/* ============================================================
+   Tree helpers
+
+   Components can be nested inside containers, so removal needs
+   to search recursively. Reordering is handled separately by
+   the drag-and-drop code below, since it always operates on
+   whichever array the dragged block actually lives in.
+   ============================================================ */
+
+function removeByUid(list, uidVal) {
+  const idx = list.findIndex(i => i._uid === uidVal);
+  if (idx > -1) {
+    list.splice(idx, 1);
+    return true;
+  }
+  for (const item of list) {
+    if (item.type === 'container' && removeByUid(item.children, uidVal)) return true;
+  }
+  return false;
+}
+
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str ?? '';
+  return d.innerHTML;
+}
+
+/* ============================================================
+   Builder panel — rendering
+   ============================================================ */
+
+function render() {
+  const rootList = document.getElementById('rootList');
+  const emptyState = document.getElementById('emptyState');
+
+  rootList.innerHTML = '';
+  emptyState.style.display = state.root.length ? 'none' : 'block';
+  document.getElementById('rootCount').textContent = state.root.length;
+
+  state.root.forEach((block, i) => {
+    rootList.appendChild(renderBlock(block, state.root, i, state.root.length));
+  });
+
+  renderPreview();
+  renderJson();
+}
+
+function blockHeader(block, list, label) {
+  const head = document.createElement('div');
+  head.className = 'block-head';
+
+  const left = document.createElement('div');
+  left.className = 'left';
+
+  const handle = document.createElement('span');
+  handle.className = 'drag-handle';
+  handle.title = 'Drag to reorder';
+  handle.textContent = '⠿';
+  handle.setAttribute('draggable', 'true');
+
+  const tag = document.createElement('span');
+  tag.className = 'tag';
+  tag.textContent = label;
+
+  left.appendChild(handle);
+  left.appendChild(tag);
+
+  const controls = document.createElement('div');
+  controls.className = 'block-controls';
+
+  const del = document.createElement('button');
+  del.className = 'icon-btn danger';
+  del.type = 'button';
+  del.title = 'Delete';
+  del.textContent = '✕';
+  del.addEventListener('click', () => {
+    removeByUid(state.root, block._uid);
+    render();
+  });
+  controls.appendChild(del);
+
+  head.appendChild(left);
+  head.appendChild(controls);
+
+  wireDrag(handle, block, list);
+
+  return head;
+}
+
+/* ---- drag and drop reordering ----
+
+   Each block's drag handle starts a drag carrying its uid and
+   the array it lives in. Any block in that same array can be a
+   drop target — dropping above/below its midpoint inserts the
+   dragged block there. Dragging across different containers
+   isn't supported; reordering only happens within one list. */
+
+function wireDrag(handleEl, block, list) {
+  handleEl.addEventListener('dragstart', e => {
+    dragState = { uid: block._uid, list };
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', block._uid);
+    const blockEl = handleEl.closest('.block');
+    requestAnimationFrame(() => blockEl && blockEl.classList.add('dragging'));
+  });
+
+  handleEl.addEventListener('dragend', () => {
+    document.querySelectorAll('.block.dragging').forEach(n => n.classList.remove('dragging'));
+    document.querySelectorAll('.block.drag-over-top, .block.drag-over-bottom').forEach(n => {
+      n.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+    dragState = null;
+  });
+}
+
+function wireDropTarget(blockEl, block, list) {
+  blockEl.addEventListener('dragover', e => {
+    if (!dragState || dragState.list !== list || dragState.uid === block._uid) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+
+    const rect = blockEl.getBoundingClientRect();
+    const before = (e.clientY - rect.top) < rect.height / 2;
+    blockEl.classList.toggle('drag-over-top', before);
+    blockEl.classList.toggle('drag-over-bottom', !before);
+  });
+
+  blockEl.addEventListener('dragleave', () => {
+    blockEl.classList.remove('drag-over-top', 'drag-over-bottom');
+  });
+
+  blockEl.addEventListener('drop', e => {
+    if (!dragState || dragState.list !== list || dragState.uid === block._uid) return;
+    e.preventDefault();
+
+    const rect = blockEl.getBoundingClientRect();
+    const before = (e.clientY - rect.top) < rect.height / 2;
+
+    const fromIdx = list.findIndex(i => i._uid === dragState.uid);
+    if (fromIdx === -1) return;
+
+    const [moved] = list.splice(fromIdx, 1);
+    let toIdx = list.findIndex(i => i._uid === block._uid);
+    if (!before) toIdx += 1;
+    list.splice(toIdx, 0, moved);
+
+    blockEl.classList.remove('drag-over-top', 'drag-over-bottom');
+    render();
+  });
+}
+
+function renderBlock(block, parentList, index, len) {
+  const el = document.createElement('div');
+  el.className = 'block type-' + block.type;
+  wireDropTarget(el, block, parentList);
+
+  if (block.type === 'container') renderContainerBlock(el, block, parentList);
+  else if (block.type === 'text') renderTextBlock(el, block, parentList);
+  else if (block.type === 'section') renderSectionBlock(el, block, parentList);
+  else if (block.type === 'gallery') renderGalleryBlock(el, block, parentList);
+  else if (block.type === 'separator') renderSeparatorBlock(el, block, parentList);
+  else if (block.type === 'actionrow') renderActionRowBlock(el, block, parentList);
+
+  return el;
+}
+
+function renderContainerBlock(el, block, parentList) {
+  el.appendChild(blockHeader(block, parentList, 'Container'));
+
+  const accentToggle = document.createElement('div');
+  accentToggle.className = 'toggle-row';
+  accentToggle.innerHTML = `
+    <div class="label-wrap">
+      <span class="title">Accent color</span>
+      <span class="sub">Off = no accent color bar on this container</span>
+    </div>
+    <label class="switch">
+      <input type="checkbox" ${block.hasAccent ? 'checked' : ''}>
+      <span class="slider"></span>
+    </label>`;
+  accentToggle.querySelector('input').addEventListener('change', e => {
+    block.hasAccent = e.target.checked;
+    render();
+  });
+  el.appendChild(accentToggle);
+
+  if (block.hasAccent) {
+    const colorField = document.createElement('div');
+    colorField.className = 'field';
+    colorField.innerHTML = '<label>Color</label>';
+
+    const row = document.createElement('div');
+    row.className = 'color-row';
+
+    const colorInput = document.createElement('input');
+    colorInput.type = 'color';
+    colorInput.value = block.accentColor;
+
+    const hexInput = document.createElement('input');
+    hexInput.type = 'text';
+    hexInput.value = block.accentColor;
+    hexInput.style.width = '110px';
+
+    colorInput.addEventListener('input', e => {
+      block.accentColor = e.target.value;
+      hexInput.value = e.target.value;
+      renderPreview();
+      renderJson();
+    });
+    hexInput.addEventListener('input', e => {
+      let v = e.target.value.trim();
+      if (/^#?[0-9a-fA-F]{6}$/.test(v)) {
+        if (!v.startsWith('#')) v = '#' + v;
+        block.accentColor = v;
+        colorInput.value = v;
+        renderPreview();
+        renderJson();
+      }
+    });
+
+    row.appendChild(colorInput);
+    row.appendChild(hexInput);
+    colorField.appendChild(row);
+    el.appendChild(colorField);
+  }
+
+  const spoilerToggle = document.createElement('div');
+  spoilerToggle.className = 'toggle-row';
+  spoilerToggle.innerHTML = `
+    <div class="label-wrap">
+      <span class="title">Spoiler</span>
+      <span class="sub">Blur container contents until clicked</span>
+    </div>
+    <label class="switch">
+      <input type="checkbox" ${block.spoiler ? 'checked' : ''}>
+      <span class="slider"></span>
+    </label>`;
+  spoilerToggle.querySelector('input').addEventListener('change', e => {
+    block.spoiler = e.target.checked;
+    renderJson();
+  });
+  el.appendChild(spoilerToggle);
+
+  const nested = document.createElement('div');
+  nested.className = 'nested';
+  block.children.forEach((child, i) => {
+    nested.appendChild(renderBlock(child, block.children, i, block.children.length));
+  });
+  el.appendChild(nested);
+
+  const addMenu = document.createElement('div');
+  addMenu.className = 'add-menu';
+  addMenu.style.marginTop = '10px';
+  const nestedOptions = [
+    ['text', 'Text display'],
+    ['section', 'Section'],
+    ['gallery', 'Gallery'],
+    ['separator', 'Separator'],
+    ['actionrow', 'Action row'],
+  ];
+  nestedOptions.forEach(([type, label]) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = label;
+    b.addEventListener('click', () => {
+      block.children.push(factory(type));
+      render();
+    });
+    addMenu.appendChild(b);
+  });
+  nested.appendChild(addMenu);
+}
+
+function renderTextBlock(el, block, parentList) {
+  el.appendChild(blockHeader(block, parentList, 'Text display'));
+
+  const field = document.createElement('div');
+  field.className = 'field';
+  field.style.marginBottom = 0;
+  field.innerHTML = '<label>Content (markdown supported)</label>';
+
+  const isEmpty = () => !block.content.trim();
+
+  const ta = document.createElement('textarea');
+  ta.placeholder = 'Write your text here...';
+  ta.value = block.content;
+  ta.classList.toggle('field-warn', isEmpty());
+  ta.addEventListener('input', e => {
+    block.content = e.target.value;
+    ta.classList.toggle('field-warn', isEmpty());
+    renderPreview();
+    renderJson();
+  });
+  field.appendChild(ta);
+
+  if (isEmpty()) {
+    const warn = document.createElement('div');
+    warn.className = 'field-warn-note';
+    warn.textContent = 'Empty — Discord will reject the message until this has text.';
+    field.appendChild(warn);
+  }
+
+  el.appendChild(field);
+}
+
+function renderSectionBlock(el, block, parentList) {
+  el.appendChild(blockHeader(block, parentList, 'Section'));
+
+  const syncTextWarn = () => {
+    const allEmpty = block.texts.every(t => !t.content.trim());
+    el.querySelectorAll('.section-text-input').forEach(node => {
+      node.classList.toggle('field-warn', allEmpty);
+    });
+  };
+
+  block.texts.forEach((t, ti) => {
+    const field = document.createElement('div');
+    field.className = 'field';
+
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.gap = '6px';
+    row.style.alignItems = 'flex-start';
+
+    const ta = document.createElement('textarea');
+    ta.className = 'section-text-input';
+    ta.style.minHeight = '44px';
+    ta.placeholder = 'Section text line...';
+    ta.value = t.content;
+    ta.addEventListener('input', e => {
+      t.content = e.target.value;
+      syncTextWarn();
+      renderPreview();
+      renderJson();
+    });
+    row.appendChild(ta);
+
+    if (block.texts.length > 1) {
+      const rm = document.createElement('button');
+      rm.className = 'icon-btn danger';
+      rm.type = 'button';
+      rm.textContent = '✕';
+      rm.addEventListener('click', () => {
+        block.texts.splice(ti, 1);
+        render();
+      });
+      row.appendChild(rm);
+    }
+
+    field.appendChild(row);
+    el.appendChild(field);
+  });
+  syncTextWarn();
+
+  if (block.texts.length < 3) {
+    const addTextBtn = document.createElement('button');
+    addTextBtn.className = 'btn-add';
+    addTextBtn.type = 'button';
+    addTextBtn.style.marginBottom = '12px';
+    addTextBtn.style.padding = '6px';
+    addTextBtn.textContent = '+ Add text line';
+    addTextBtn.addEventListener('click', () => {
+      block.texts.push(newText());
+      render();
+    });
+    el.appendChild(addTextBtn);
+  }
+
+  const accField = document.createElement('div');
+  accField.className = 'field';
+  accField.style.marginBottom = 0;
+  accField.innerHTML = '<label>Accessory</label>';
+
+  const accToggle = document.createElement('div');
+  accToggle.className = 'accessory-toggle';
+  const accessoryLabels = { none: 'None', thumbnail: 'Thumbnail', button: 'Button' };
+  Object.keys(accessoryLabels).forEach(opt => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = accessoryLabels[opt];
+    if (block.accessoryType === opt) b.className = 'active';
+    b.addEventListener('click', () => {
+      block.accessoryType = opt;
+      render();
+    });
+    accToggle.appendChild(b);
+  });
+  accField.appendChild(accToggle);
+  el.appendChild(accField);
+
+  if (block.accessoryType === 'thumbnail') {
+    const tf = document.createElement('div');
+    tf.className = 'field';
+    tf.style.marginTop = '8px';
+    tf.innerHTML = '<label>Image URL</label>';
+
+    const inp = document.createElement('input');
+    inp.type = 'url';
+    inp.placeholder = 'https://example.com/image.png';
+    inp.value = block.thumbUrl;
+    inp.classList.toggle('field-warn', !block.thumbUrl.trim());
+    inp.addEventListener('input', e => {
+      block.thumbUrl = e.target.value;
+      inp.classList.toggle('field-warn', !block.thumbUrl.trim());
+      renderPreview();
+      renderJson();
+    });
+    tf.appendChild(inp);
+    el.appendChild(tf);
+
+  } else if (block.accessoryType === 'button') {
+    const bf = document.createElement('div');
+    bf.className = 'field-row';
+    bf.style.marginTop = '8px';
+    bf.innerHTML = `
+      <div class="field" style="margin-bottom:0;"><label>Button label</label></div>
+      <div class="field" style="margin-bottom:0;"><label>Link URL</label></div>`;
+
+    const labelInp = document.createElement('input');
+    labelInp.type = 'text';
+    labelInp.placeholder = 'View';
+    labelInp.value = block.buttonLabel;
+    labelInp.addEventListener('input', e => {
+      block.buttonLabel = e.target.value;
+      renderPreview();
+      renderJson();
+    });
+
+    const urlInp = document.createElement('input');
+    urlInp.type = 'url';
+    urlInp.placeholder = 'https://...';
+    urlInp.value = block.buttonUrl;
+    urlInp.addEventListener('input', e => {
+      block.buttonUrl = e.target.value;
+      renderPreview();
+      renderJson();
+    });
+
+    bf.children[0].appendChild(labelInp);
+    bf.children[1].appendChild(urlInp);
+    el.appendChild(bf);
+  }
+}
+
+function renderGalleryBlock(el, block, parentList) {
+  el.appendChild(blockHeader(block, parentList, 'Media gallery'));
+
+  block.items.forEach((item, gi) => {
+    const row = document.createElement('div');
+    row.className = 'field-row';
+    row.style.marginBottom = '8px';
+    row.innerHTML = `
+      <div class="field" style="margin-bottom:0;flex:2;"><label>Image URL</label></div>
+      <div class="field" style="margin-bottom:0;flex:1;"><label>Alt text</label></div>`;
+
+    const urlInp = document.createElement('input');
+    urlInp.type = 'url';
+    urlInp.placeholder = 'https://example.com/img.png';
+    urlInp.value = item.url;
+    urlInp.addEventListener('input', e => {
+      item.url = e.target.value;
+      renderPreview();
+      renderJson();
+    });
+
+    const descInp = document.createElement('input');
+    descInp.type = 'text';
+    descInp.placeholder = 'Optional';
+    descInp.value = item.description;
+    descInp.addEventListener('input', e => {
+      item.description = e.target.value;
+      renderJson();
+    });
+
+    row.children[0].appendChild(urlInp);
+    row.children[1].appendChild(descInp);
+
+    if (block.items.length > 1) {
+      const rm = document.createElement('button');
+      rm.className = 'icon-btn danger';
+      rm.type = 'button';
+      rm.textContent = '✕';
+      rm.style.marginTop = '19px';
+      rm.addEventListener('click', () => {
+        block.items.splice(gi, 1);
+        render();
+      });
+      row.appendChild(rm);
+    }
+
+    el.appendChild(row);
+  });
+
+  if (block.items.length < 10) {
+    const addBtn = document.createElement('button');
+    addBtn.className = 'btn-add';
+    addBtn.type = 'button';
+    addBtn.style.padding = '6px';
+    addBtn.textContent = '+ Add image';
+    addBtn.addEventListener('click', () => {
+      block.items.push({ url: '', description: '' });
+      render();
+    });
+    el.appendChild(addBtn);
+  }
+}
+
+function renderSeparatorBlock(el, block, parentList) {
+  el.appendChild(blockHeader(block, parentList, 'Separator'));
+
+  const row = document.createElement('div');
+  row.className = 'toggle-row';
+  row.innerHTML = `
+    <div class="label-wrap">
+      <span class="title">Show divider line</span>
+    </div>
+    <label class="switch">
+      <input type="checkbox" ${block.divider ? 'checked' : ''}>
+      <span class="slider"></span>
+    </label>`;
+  row.querySelector('input').addEventListener('change', e => {
+    block.divider = e.target.checked;
+    renderPreview();
+    renderJson();
+  });
+  el.appendChild(row);
+
+  const spacingField = document.createElement('div');
+  spacingField.className = 'field';
+  spacingField.style.marginBottom = 0;
+  spacingField.innerHTML = '<label>Spacing</label>';
+
+  const sel = document.createElement('select');
+  sel.innerHTML = '<option value="small">Small</option><option value="large">Large</option>';
+  sel.value = block.spacing;
+  sel.addEventListener('change', e => {
+    block.spacing = e.target.value;
+    renderPreview();
+    renderJson();
+  });
+  spacingField.appendChild(sel);
+  el.appendChild(spacingField);
+}
+
+function renderActionRowBlock(el, block, parentList) {
+  el.appendChild(blockHeader(block, parentList, 'Action row (link buttons)'));
+
+  const note = document.createElement('p');
+  note.className = 'hint';
+  note.style.margin = '0 0 10px';
+  note.textContent = 'Webhooks can only send link-style buttons (no interaction handler available).';
+  el.appendChild(note);
+
+  block.buttons.forEach((btn, bi) => {
+    const row = document.createElement('div');
+    row.className = 'field-row';
+    row.style.marginBottom = '8px';
+    row.innerHTML = `
+      <div class="field" style="margin-bottom:0;flex:1;"><label>Label</label></div>
+      <div class="field" style="margin-bottom:0;flex:2;"><label>URL</label></div>`;
+
+    const labelInp = document.createElement('input');
+    labelInp.type = 'text';
+    labelInp.placeholder = 'Visit site';
+    labelInp.value = btn.label;
+    labelInp.addEventListener('input', e => {
+      btn.label = e.target.value;
+      renderPreview();
+      renderJson();
+    });
+
+    const urlInp = document.createElement('input');
+    urlInp.type = 'url';
+    urlInp.placeholder = 'https://...';
+    urlInp.value = btn.url;
+    const flagUrl = () => {
+      const v = btn.url.trim();
+      urlInp.classList.toggle('field-warn', v.length > 0 && !isValidUrl(v));
+    };
+    flagUrl();
+    urlInp.addEventListener('input', e => {
+      btn.url = e.target.value;
+      flagUrl();
+      renderPreview();
+      renderJson();
+    });
+
+    row.children[0].appendChild(labelInp);
+    row.children[1].appendChild(urlInp);
+
+    if (block.buttons.length > 1) {
+      const rm = document.createElement('button');
+      rm.className = 'icon-btn danger';
+      rm.type = 'button';
+      rm.textContent = '✕';
+      rm.style.marginTop = '19px';
+      rm.addEventListener('click', () => {
+        block.buttons.splice(bi, 1);
+        render();
+      });
+      row.appendChild(rm);
+    }
+
+    el.appendChild(row);
+  });
+
+  if (block.buttons.length < 5) {
+    const addBtn = document.createElement('button');
+    addBtn.className = 'btn-add';
+    addBtn.type = 'button';
+    addBtn.style.padding = '6px';
+    addBtn.textContent = '+ Add button';
+    addBtn.addEventListener('click', () => {
+      block.buttons.push({ label: '', url: '', style: 'link' });
+      render();
+    });
+    el.appendChild(addBtn);
+  }
+}
+
+/* ============================================================
+   Preview panel
+   ============================================================ */
+
+/* Minimal markdown renderer for the preview — just enough to
+   approximate what Discord will actually show. Custom emoji
+   syntax (<:name:id> / <a:name:id>) gets swapped for a real
+   <img> before the rest of the string is HTML-escaped, then
+   the images are spliced back in afterward so they don't get
+   escaped along with everything else. */
+function simpleMarkdown(str) {
+  const raw = str ?? '';
+  const emojiPattern = /<(a?):(\w+):(\d+)>/g;
+  const emojiTags = [];
+
+  const withPlaceholders = raw.replace(emojiPattern, (match, animated, name, id) => {
+    const token = `\u0000EMOJI${emojiTags.length}\u0000`;
+    const ext = animated ? 'gif' : 'png';
+    emojiTags.push(
+      `<img src="https://cdn.discordapp.com/emojis/${id}.${ext}?size=32" ` +
+      `alt=":${esc(name)}:" title=":${esc(name)}:" ` +
+      `style="width:1.375em;height:1.375em;vertical-align:-0.3em;object-fit:contain;">`
+    );
+    return token;
+  });
+
+  let s = esc(withPlaceholders);
+  s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  s = s.replace(/__(.+?)__/g, '<u>$1</u>');
+  s = s.replace(/~~(.+?)~~/g, '<s>$1</s>');
+  s = s.replace(/`(.+?)`/g, '<code style="background:var(--bg-elevated);padding:1px 4px;border-radius:3px;font-family:var(--mono);font-size:12.5px;">$1</code>');
+  s = s.replace(/\n/g, '<br>');
+  s = s.replace(/\u0000EMOJI(\d+)\u0000/g, (match, idx) => emojiTags[Number(idx)] || '');
+
+  return s;
+}
+
+function renderPreviewBlock(block) {
+  if (block.type === 'text') {
+    const d = document.createElement('div');
+    d.className = 'cv2-text';
+    if (block.content) {
+      d.innerHTML = simpleMarkdown(block.content);
+    } else {
+      d.textContent = '(empty text display)';
+      d.style.color = 'var(--text-faint)';
+    }
+    return d;
+  }
+
+  if (block.type === 'section') {
+    const wrap = document.createElement('div');
+    wrap.className = 'cv2-section';
+
+    const textCol = document.createElement('div');
+    textCol.className = 'cv2-section-text';
+    block.texts.forEach(t => {
+      const d = document.createElement('div');
+      d.className = 'cv2-text';
+      d.innerHTML = simpleMarkdown(t.content || '(empty)');
+      if (!t.content) d.style.color = 'var(--text-faint)';
+      textCol.appendChild(d);
+    });
+    wrap.appendChild(textCol);
+
+    if (block.accessoryType === 'thumbnail') {
+      const img = document.createElement('img');
+      img.className = 'cv2-thumb';
+      if (block.thumbUrl) img.src = block.thumbUrl;
+      img.onerror = () => {
+        img.style.background = 'var(--bg-elevated)';
+        img.removeAttribute('src');
+      };
+      wrap.appendChild(img);
+    } else if (block.accessoryType === 'button') {
+      const b = document.createElement('button');
+      b.className = 'cv2-btn-accessory';
+      b.textContent = block.buttonLabel || 'Button';
+      wrap.appendChild(b);
+    }
+
+    return wrap;
+  }
+
+  if (block.type === 'gallery') {
+    const withUrl = block.items.filter(i => i.url);
+    if (!withUrl.length) {
+      const p = document.createElement('div');
+      p.style.color = 'var(--text-faint)';
+      p.style.fontSize = '12.5px';
+      p.textContent = '(no images added)';
+      return p;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'cv2-gallery';
+    withUrl.forEach(i => {
+      const img = document.createElement('img');
+      img.src = i.url;
+      img.alt = i.description || '';
+      img.onerror = () => { img.style.opacity = .3; };
+      grid.appendChild(img);
+    });
+    return grid;
+  }
+
+  if (block.type === 'separator') {
+    const d = document.createElement('div');
+    d.className = 'cv2-separator';
+    if (!block.divider) d.style.background = 'transparent';
+    if (block.spacing === 'large') d.style.margin = '16px 0';
+    return d;
+  }
+
+  if (block.type === 'actionrow') {
+    const row = document.createElement('div');
+    row.className = 'cv2-actionrow';
+    block.buttons.forEach(b => {
+      const btn = document.createElement('button');
+      btn.textContent = (b.label || 'Link') + ' ↗';
+      row.appendChild(btn);
+    });
+    return row;
+  }
+
+  if (block.type === 'container') {
+    const c = document.createElement('div');
+    c.className = 'cv2-container' + (block.hasAccent ? '' : ' no-accent');
+    if (block.hasAccent) c.style.borderLeftColor = block.accentColor;
+    if (block.spoiler) c.style.filter = 'blur(4px)';
+
+    if (!block.children.length) {
+      const p = document.createElement('div');
+      p.style.color = 'var(--text-faint)';
+      p.style.fontSize = '12.5px';
+      p.textContent = '(empty container)';
+      c.appendChild(p);
+    }
+    block.children.forEach(child => c.appendChild(renderPreviewBlock(child)));
+
+    return c;
+  }
+}
+
+function renderPreview() {
+  const container = document.getElementById('cv2Preview');
+  container.innerHTML = '';
+
+  if (!state.root.length) {
+    const p = document.createElement('div');
+    p.className = 'placeholder-preview';
+    p.textContent = 'Your message preview will appear here.';
+    container.appendChild(p);
+  } else {
+    state.root.forEach(b => container.appendChild(renderPreviewBlock(b)));
+  }
+
+  // the username/avatar override fields win if set, otherwise fall
+  // back to whatever identity we fetched for the webhook itself
+  const username = document.getElementById('webhookUsername').value.trim() || webhookIdentity.name;
+  const avatarUrl = document.getElementById('webhookAvatar').value.trim() || webhookIdentity.avatar;
+
+  document.getElementById('previewAuthor').textContent = username || 'Webhook bot';
+
+  const avatarEl = document.getElementById('previewAvatarLetter');
+  if (avatarUrl) {
+    avatarEl.style.backgroundImage = `url(${avatarUrl})`;
+    avatarEl.style.backgroundSize = 'cover';
+    avatarEl.textContent = '';
+  } else {
+    avatarEl.style.backgroundImage = 'none';
+    avatarEl.textContent = (username || 'B').charAt(0).toUpperCase();
+  }
+
+  document.getElementById('previewTime').textContent =
+    new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+/* ============================================================
+   JSON payload — this is what actually gets sent to Discord
+   ============================================================ */
+
+function hexToInt(hex) {
+  return parseInt(hex.replace('#', ''), 16);
+}
+
+function buildComponent(block) {
+  if (block.type === 'text') {
+    return { type: 10, content: block.content.trim() };
+  }
+
+  if (block.type === 'section') {
+    const comp = {
+      type: 9,
+      components: block.texts.map(t => ({ type: 10, content: t.content.trim() })),
+    };
+    if (block.accessoryType === 'thumbnail') {
+      comp.accessory = { type: 11, media: { url: block.thumbUrl.trim() } };
+    } else if (block.accessoryType === 'button') {
+      comp.accessory = { type: 2, style: 5, label: block.buttonLabel || 'Button', url: block.buttonUrl.trim() };
+    }
+    return comp;
+  }
+
+  if (block.type === 'gallery') {
+    const items = block.items
+      .filter(i => i.url.trim())
+      .map(i => {
+        const item = { media: { url: i.url.trim() }, spoiler: false };
+        if (i.description.trim()) item.description = i.description.trim();
+        return item;
+      });
+    return { type: 12, items };
+  }
+
+  if (block.type === 'separator') {
+    return { type: 14, divider: block.divider, spacing: block.spacing === 'large' ? 2 : 1 };
+  }
+
+  if (block.type === 'actionrow') {
+    return {
+      type: 1,
+      components: block.buttons.map(b => ({ type: 2, style: 5, label: b.label || 'Link', url: b.url.trim() })),
+    };
+  }
+
+  if (block.type === 'container') {
+    const comp = { type: 17, components: block.children.map(buildComponent) };
+    if (block.hasAccent) comp.accent_color = hexToInt(block.accentColor);
+    if (block.spoiler) comp.spoiler = true;
+    return comp;
+  }
+}
+
+function buildPayload() {
+  const payload = {
+    flags: IS_COMPONENTS_V2,
+    components: state.root.map(buildComponent),
+  };
+
+  const username = document.getElementById('webhookUsername').value.trim();
+  const avatarUrl = document.getElementById('webhookAvatar').value.trim();
+  if (username) payload.username = username;
+  if (avatarUrl) payload.avatar_url = avatarUrl;
+
+  return payload;
+}
+
+function renderJson() {
+  document.getElementById('jsonOut').textContent = JSON.stringify(buildPayload(), null, 2);
+}
+
+/* ============================================================
+   Preview / JSON tabs
+   ============================================================ */
+
+document.querySelectorAll('.side-tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.side-tabs button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const isPreview = btn.dataset.tab === 'preview';
+    document.getElementById('previewWrap').classList.toggle('active', isPreview);
+    document.getElementById('jsonWrap').classList.toggle('active', !isPreview);
+  });
+});
+
+function showJsonTab() {
+  document.querySelectorAll('.side-tabs button').forEach(b => b.classList.remove('active'));
+  document.querySelector('.side-tabs button[data-tab="json"]').classList.add('active');
+  document.getElementById('previewWrap').classList.remove('active');
+  document.getElementById('jsonWrap').classList.add('active');
+}
+
+document.getElementById('webhookUsername').addEventListener('input', renderPreview);
+document.getElementById('webhookAvatar').addEventListener('input', renderPreview);
+
+document.getElementById('copyJsonBtn').addEventListener('click', async () => {
+  const text = document.getElementById('jsonOut').textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+    const btn = document.getElementById('copyJsonBtn');
+    const original = btn.textContent;
+    btn.textContent = 'Copied';
+    setTimeout(() => { btn.textContent = original; }, 1400);
+  } catch (e) {
+    showStatus('Could not copy automatically. Select the JSON manually.', 'err');
+  }
+});
+
+/* ============================================================
+   Validation
+
+   Discord's own error messages for Components V2 are often just
+   "cannot send an empty message" even when the real problem is
+   one bad field buried in a nested container — so we check the
+   whole tree ourselves first and point at the specific block.
+   ============================================================ */
+
+function showStatus(msg, type) {
+  const el = document.getElementById('statusMsg');
+  el.textContent = msg;
+  el.className = 'status-msg show ' + type;
+}
+
+function isValidUrl(str) {
+  try {
+    const u = new URL(str.trim());
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch (e) {
+    return false;
+  }
+}
+
+function findValidationIssue(list) {
+  for (const block of list) {
+    if (block.type === 'text' && !block.content.trim()) {
+      return 'A text display is empty. Fill it in or delete it.';
+    }
+
+    if (block.type === 'section') {
+      if (block.texts.every(t => !t.content.trim())) {
+        return 'A section has no text content. Fill in at least one line or delete it.';
+      }
+      if (block.accessoryType === 'thumbnail') {
+        if (!block.thumbUrl.trim()) {
+          return "A section's thumbnail accessory has no image URL. Add one, switch to a button, or set accessory to None.";
+        }
+        if (!isValidUrl(block.thumbUrl)) {
+          return `A section's thumbnail URL isn't a valid link ("${block.thumbUrl}"). It needs to start with https://`;
+        }
+      }
+      if (block.accessoryType === 'button') {
+        if (!block.buttonUrl.trim()) {
+          return "A section's button accessory has no URL. Add one, switch to thumbnail, or set accessory to None.";
+        }
+        if (!isValidUrl(block.buttonUrl)) {
+          return `A section's button URL isn't a valid link ("${block.buttonUrl}"). It needs to start with https://`;
+        }
+      }
+    }
+
+    if (block.type === 'gallery') {
+      const withUrl = block.items.filter(i => i.url.trim());
+      if (!withUrl.length) {
+        return 'A media gallery has no images. Add at least one image URL or delete it.';
+      }
+      const bad = withUrl.find(i => !isValidUrl(i.url));
+      if (bad) {
+        return `A media gallery image URL isn't valid ("${bad.url}"). It needs to start with https://`;
+      }
+    }
+
+    if (block.type === 'actionrow') {
+      const withUrl = block.buttons.filter(b => b.url.trim());
+      if (!withUrl.length) {
+        return 'An action row has no button URL set. Add one or delete the row.';
+      }
+      const bad = withUrl.find(b => !isValidUrl(b.url));
+      if (bad) {
+        return `An action row button URL isn't valid ("${bad.url}"). It needs to start with https:// — Discord link buttons can't use plain text like "test".`;
+      }
+      const noLabel = block.buttons.find(b => b.url.trim() && !b.label.trim());
+      if (noLabel) {
+        return 'An action row button has a URL but no label. Add a label or delete the button.';
+      }
+    }
+
+    if (block.type === 'container') {
+      if (!block.children.length) {
+        return 'A container is empty. Add a component inside it or delete it.';
+      }
+      const nestedIssue = findValidationIssue(block.children);
+      if (nestedIssue) return nestedIssue;
+    }
+  }
+  return null;
+}
+
+function validate() {
+  const url = document.getElementById('webhookUrl').value.trim();
+  if (!url) return 'Enter a webhook URL first.';
+  if (!/^https:\/\/(discord|discordapp)\.com\/api\/webhooks\/\d+\/[\w-]+/.test(url)) {
+    return "That doesn't look like a valid Discord webhook URL.";
+  }
+  if (!state.root.length) return 'Add at least one component before sending.';
+  return findValidationIssue(state.root);
+}
+
+/* ============================================================
+   Sending
+   ============================================================ */
+
+document.getElementById('sendBtn').addEventListener('click', async () => {
+  const validationError = validate();
+  if (validationError) {
+    showStatus(validationError, 'err');
+    return;
+  }
+
+  const url = document.getElementById('webhookUrl').value.trim();
+  const payload = buildPayload();
+  const sendBtn = document.getElementById('sendBtn');
+
+  sendBtn.disabled = true;
+  sendBtn.textContent = 'Sending...';
+
+  try {
+    // with_components=true is required on top of the flag itself —
+    // without it, webhooks silently drop the components and Discord
+    // reports the message as empty
+    const res = await fetch(url + '?wait=true&with_components=true', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      showStatus('Message sent to Discord.', 'ok');
+    } else {
+      let detail = '';
+      try {
+        const data = await res.json();
+        detail = data.message || '';
+        if (data.errors) detail += ' — ' + JSON.stringify(data.errors);
+      } catch (e) {
+        // response wasn't JSON — nothing more to extract
+      }
+      showStatus(`Discord rejected the request (${res.status}). ${detail} Check the JSON payload tab — it now shows exactly what was sent.`, 'err');
+      renderJson();
+      showJsonTab();
+    }
+  } catch (e) {
+    showStatus('Could not reach Discord. This may be a network or CORS restriction in this environment — try the "Copy JSON" tab and send it from your own server or a tool like Postman instead.', 'err');
+  } finally {
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Send to Discord';
+  }
+});
+
+/* ============================================================
+   Webhook identity lookup
+
+   Discord's GET /webhooks/{id}/{token} endpoint returns the
+   webhook's configured name and avatar hash, so we can show the
+   real bot identity in the preview instead of a generic default.
+   ============================================================ */
+
+async function fetchWebhookIdentity(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('status ' + res.status);
+
+  const data = await res.json();
+  const avatar = (data.avatar && data.id)
+    ? `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.png?size=64`
+    : '';
+
+  return { name: data.name || '', avatar };
+}
+
+document.getElementById('webhookUrl').addEventListener('input', () => {
+  clearTimeout(webhookUrlDebounce);
+
+  const url = document.getElementById('webhookUrl').value.trim();
+  const looksValid = /^https:\/\/(discord|discordapp)\.com\/api\/webhooks\/\d+\/[\w-]+/.test(url);
+
+  if (!looksValid) {
+    webhookIdentity = { name: '', avatar: '' };
+    renderPreview();
+    return;
+  }
+
+  webhookUrlDebounce = setTimeout(async () => {
+    try {
+      webhookIdentity = await fetchWebhookIdentity(url);
+    } catch (e) {
+      webhookIdentity = { name: '', avatar: '' };
+    }
+    renderPreview();
+  }, 500);
+});
+
+/* ============================================================
+   Initial state — one example container so the shape is obvious
+   ============================================================ */
+
+const starterContainer = newContainer();
+const starterText = newText();
+starterText.content = '**Welcome!**\nThis container has no accent color — toggle it on in the panel.';
+starterContainer.children.push(starterText);
+state.root.push(starterContainer);
+
+render();
+
+</script>
+
+</body>
+</html>
