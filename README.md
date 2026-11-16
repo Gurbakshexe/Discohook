@@ -15,7 +15,7 @@ Discord's Components V2 message format is powerful but verbose — building anyt
 - **Live Discord-style preview** — see exactly how the message will render before you send it
 - **JSON payload inspector** — view and copy the generated Components V2 JSON at any time, for use elsewhere or for debugging
 - **Rich section support** — attach a thumbnail or a link button as an accessory to any section
-- **Container styling** — optional accent color and spoiler toggle per container
+- **Container styling** — optional accent color and spoiler toggle per container and emojis preview
 - **One-click send** — paste a webhook URL and post the message directly from the browser
 - **Identity overrides** — set a custom username and avatar for the webhook post, per message
 - **Zero setup** — a single static HTML file; open it and start building
