@@ -29,7 +29,7 @@ Open the hosted version: **[Live demo](https://components-v2-builder-website.ver
 ### Option 2 — Run it locally
 
 ```bash
-git clone https://github.com/Gurbakshexe/Components-V2-Builder-Website.git
+git clone https://github.com/Gurbakshexe/Discohook.git
 cd Components-V2-Builder-Website
 ```
 
